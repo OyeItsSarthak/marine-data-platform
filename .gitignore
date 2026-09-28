@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.db
+*.sqlite3
+.env
+*.log
+.DS_Store
+commit_day*.bat
+commit_day*.ps1
+

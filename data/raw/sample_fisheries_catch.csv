@@ -1,0 +1,5 @@
+Date,Vessel_ID,Vessel_Name,Latitude,Longitude,Target_Fish,Catch_KG
+2026-06-10,IND-GOA-102,Sea Explorer,15° 15' N,73° 40' E,yellowfin tuna,480.5
+2026-06-12,IND-GOA-108,Ocean Falcon,14° 50' N,73° 55' E,indian mackerel,150.0
+2026-06-15,IND-KER-204,Coastal Pioneer,15.25,73.65,oil sardine,820.0
+2026-06-18,IND-MAH-301,Blue Horizon,15.80,73.20,skipjack tuna,340.0

@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Triton Oceanic AI | Unified Marine Intelligence Platform</title>
+  <meta name="description" content="AI-driven unified data platform integrating real-time physical oceanography, fisheries dynamics, and molecular eDNA biodiversity.">
+  
+  <!-- High-Precision Scientific Fonts: Inter + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet GIS Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/styles.css?v=4.0">
+</head>
+<body>
+
+  <!-- Top Operational Maritime Command Header -->
+  <header class="header-bar">
+    <div class="brand-section">
+      <div class="brand-radar-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+          <path d="M2 12h20"></path>
+        </svg>
+      </div>
+      <div>
+        <h1 class="brand-title">TRITON // GLOBAL OCEANIC INTELLIGENCE</h1>
+        <div class="brand-subtitle">INTEGRATED MARITIME OBSERVING SYSTEM • OPERATIONAL CONSOLE v2.4</div>
+      </div>
+    </div>
+
+    <!-- Live Marine Chronometer (Zulu / UTC & Julian Day) -->
+    <div class="marine-chronometer" id="marineChrono">
+      <div class="chrono-badge">
+        <span class="pulse-beacon"></span>
+        <span class="chrono-tag">ZULU TIME</span>
+      </div>
+      <div class="chrono-time-wrap">
+        <span class="chrono-time" id="zuluTime">--:--:-- UTC</span>
+        <span class="chrono-meta" id="zuluMeta">JULIAN DAY -- • WGS-84</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Feature 1: The Safe Box -->
+      <button class="btn-console" id="btnOpenSafeBox" title="Scientific Data Ingestion Drop Box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        <span>Data Ingestion</span>
+      </button>
+
+      <!-- Feature 2: The DNA Matcher -->
+      <button class="btn-console" id="btnOpenDnaMatcher" title="Genomic Sequence Classifier">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"></circle><circle cx="18" cy="18" r="3"></circle><path d="M12 6c3 0 6 3 6 6"></path><path d="M6 12c0 3 3 6 6 6"></path></svg>
+        <span>DNA Matcher</span>
+      </button>
+
+      <button class="btn-console" id="btnTriggerPipeline" title="Execute Live Unified Multi-Domain ETL Pipeline">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        <span>Run Pipeline</span>
+      </button>
+
+      <button class="btn-console btn-highlight" id="btnOpenCopilot" title="Matsya AI | Oceanic Intelligence Assistant">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span>Matsya AI</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Live Oceanographic Telemetry Ribbon -->
+  <div class="telemetry-ticker">
+    <div class="ticker-item">
+      <span class="ticker-label">GLOBAL MEAN SST:</span>
+      <span class="ticker-val cyan" id="tickerSST">28.52 °C</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ticker-label">SURFACE SALINITY:</span>
+      <span class="ticker-val" id="tickerSalinity">35.10 PSU</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ticker-label">ACTIVE AIS TRACKS:</span>
+      <span class="ticker-val green" id="tickerVessels">8 Vessels Logged</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ticker-label">eDNA SHANNON INDEX (H'):</span>
+      <span class="ticker-val amber" id="tickerShannon">1.42 (High Diversity)</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ticker-label">ECOSYSTEM INTEGRITY:</span>
+      <span class="ticker-val green" id="tickerHealth">86.4 / 100</span>
+    </div>
+    <div class="ticker-item">
+      <span class="ticker-label">TELEMETRY DOWNLINK:</span>
+      <span class="ticker-val coral" id="tickerSource">Sentinel-3 OLCI • NOAA GFS • OBIS Global</span>
+    </div>
+  </div>
+
+  <!-- Main Command Center Grid -->
+  <main class="command-grid">
+    
+    <!-- Left Column: Interactive Ocean GIS Map -->
+    <section class="map-container-wrap">
+      <div class="map-toolbar">
+        <!-- Basemap Mode Selector -->
+        <div class="toolbar-group">
+          <span class="toolbar-lbl">CHART BASEMAP:</span>
+          <button class="basemap-btn active" id="btnBasemapOcean" data-basemap="ocean" title="Vibrant Ocean Bathymetry with Depth Contours">
+            <span class="status-dot-sm cyan"></span> Bathymetry
+          </button>
+          <button class="basemap-btn" id="btnBasemapSat" data-basemap="satellite" title="True-Color High-Resolution Satellite Imagery">
+            <span class="status-dot-sm blue"></span> Satellite
+          </button>
+          <button class="basemap-btn" id="btnBasemapDark" data-basemap="dark" title="Tactical Dark Gray Navigation Canvas">
+            <span class="status-dot-sm gray"></span> Tactical Dark
+          </button>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Global Ocean Basins Quick-Fly Selector -->
+        <div class="toolbar-group">
+          <span class="toolbar-lbl">THEATRE:</span>
+          <button class="basin-btn active" id="btnBasinWorld" data-lat="15.0" data-lng="0.0" data-zoom="2.1" title="Sweeping Full Global Ocean Panorama">GLOBAL</button>
+          <button class="basin-btn" id="btnBasinAtlantic" data-lat="22.0" data-lng="-40.0" data-zoom="3" title="Atlantic Ocean (North & South)">ATLANTIC</button>
+          <button class="basin-btn" id="btnBasinPacific" data-lat="8.0" data-lng="-155.0" data-zoom="2.7" title="Pacific Ocean (East & West)">PACIFIC</button>
+          <button class="basin-btn" id="btnBasinIndian" data-lat="6.0" data-lng="78.0" data-zoom="3.8" title="Indian Ocean & Arabian Sea">INDIAN</button>
+          <button class="basin-btn" id="btnBasinPolar" data-lat="68.0" data-lng="5.0" data-zoom="3" title="Arctic Ocean & Subpolar Frontiers">ARCTIC</button>
+        </div>
+
+        <div class="toolbar-divider"></div>
+
+        <!-- Real-Time Data Overlays -->
+        <div class="toolbar-group">
+          <span class="toolbar-lbl">SENSOR FEEDS:</span>
+          <button class="layer-toggle active" id="toggleSST" data-layer="sst" title="Real-Time Sea Surface Temp (SST) Thermal Gradient Field">
+            <span class="toggle-indicator"></span> SST Field
+          </button>
+          <button class="layer-toggle" id="toggleSeamarks" data-layer="seamarks" title="OpenSeaMap Real-Time Navigation Buoys, Beacons & Seamarks">
+            <span class="toggle-indicator"></span> Seamarks
+          </button>
+          <button class="layer-toggle active" id="toggleOcean" data-layer="ocean">
+            <span class="toggle-indicator"></span> Buoy Array
+          </button>
+          <button class="layer-toggle active" id="toggleVessels" data-layer="vessels">
+            <span class="toggle-indicator"></span> AIS Fleet
+          </button>
+          <button class="layer-toggle active" id="toggleEdna" data-layer="edna">
+            <span class="toggle-indicator"></span> eDNA Bio
+          </button>
+          <button class="layer-toggle active" id="togglePfz" data-layer="pfz">
+            <span class="toggle-indicator"></span> PFZ Zones
+          </button>
+          <button class="layer-toggle active" id="toggleMigration" data-layer="migration">
+            <span class="toggle-indicator"></span> 7D Drift
+          </button>
+        </div>
+
+        <span class="map-hint-pill">CLICK OCEAN FOR CTD SOUNDING</span>
+      </div>
+
+      <div id="oceanMap"></div>
+
+      <!-- Live Interactive Cursor HUD -->
+      <div class="map-live-hud" id="mapLiveHud">
+        <span>📍 MOVE CURSOR OVER OCEAN FOR COORDINATES & TELEMETRY</span>
+      </div>
+
+      <!-- Real-Time SST Thermal Gradient Legend -->
+      <div class="thermal-legend" id="thermalLegend">
+        <div class="legend-header">
+          <span class="legend-title">GLOBAL SEA SURFACE TEMPERATURE</span>
+          <span class="legend-live-badge">NOAA / GFS ISOTHERMS</span>
+        </div>
+        <div class="legend-bar"></div>
+        <div class="legend-labels">
+          <span>&lt;4°C (POLAR)</span>
+          <span>12°C</span>
+          <span>18°C</span>
+          <span>24°C</span>
+          <span>&gt;29.5°C (WARM POOL)</span>
+        </div>
+      </div>
+
+      <!-- Feature 3: Digital CTD Sonde & Ocean Sounding Report -->
+      <div class="ocean-probe-card" id="oceanProbeCard">
+        <div class="probe-header" id="probeHeader" title="Click and drag to move floating window">
+          <div class="probe-title">
+            <span class="drag-grip" title="Drag to move window">⠿</span>
+            <span>CTD SOUNDING & WATER MASS PROFILE</span>
+            <span id="probeBasinName" class="probe-basin-badge">GLOBAL OCEAN</span>
+            <span id="probeStratum" class="probe-stratum-badge">EPIPELAGIC (0-200m)</span>
+            <span id="probeLiveStatus" class="probe-live-pill">🟢 LIVE API</span>
+          </div>
+          <div class="probe-header-actions">
+            <button class="btn-size-toggle" id="btnToggleProbeSize" title="Toggle wide / standard view">⤢</button>
+            <button class="btn-reset-pos" id="btnResetProbePos" title="Reset window size and position">⟲</button>
+            <button class="btn-close-sm" id="btnCloseProbe" title="Close inspector">&times;</button>
+          </div>
+        </div>
+
+        <div class="probe-coords-row">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="coords-lbl">POSITION:</span>
+            <span class="probe-coords" id="probeCoords">Lat: --, Lon: --</span>
+          </div>
+          <span class="probe-source-tag" id="probeSourceTag">OPEN-METEO LIVE</span>
+        </div>
+
+        <div class="probe-watermass-box">
+          <span class="wm-label">CLASSIFIED WATER MASS:</span>
+          <strong class="wm-val" id="probeWaterMass">Regional Surface Water</strong>
+        </div>
+        
+        <div class="probe-metrics-grid">
+          <div class="probe-metric-box">
+            <span class="probe-metric-lbl">Sea Surface Temp</span>
+            <span class="probe-metric-val cyan" id="probeTemp">-- °C</span>
+          </div>
+          <div class="probe-metric-box">
+            <span class="probe-metric-lbl">Practical Salinity</span>
+            <span class="probe-metric-val" id="probeSal">-- PSU</span>
+          </div>
+          <div class="probe-metric-box">
+            <span class="probe-metric-lbl">Significant Wave (Hs)</span>
+            <span class="probe-metric-val" id="probeWave">-- m</span>
+          </div>
+          <div class="probe-metric-box">
+            <span class="probe-metric-lbl">Pelagic Biomass Prob</span>
+            <span class="probe-metric-val green" id="probeFishProb">--%</span>
+          </div>
+          <div class="probe-metric-box">
+            <span class="probe-metric-lbl">Acoustic Sound Speed</span>
+            <span class="probe-metric-val teal" id="probeSoundSpeed">1542.4 m/s</span>
+          </div>
+          <div class="probe-metric-box">
+            <span class="probe-metric-lbl">Thermocline Gradient</span>
+            <span class="probe-metric-val amber" id="probeThermocline">-1.8°C / 100m</span>
+          </div>
+          <div class="probe-metric-box">
+            <span class="probe-metric-lbl">Ocean Current</span>
+            <span class="probe-metric-val sky" id="probeCurrent">-- m/s</span>
+          </div>
+          <div class="probe-metric-box">
+            <span class="probe-metric-lbl">Surface Wind</span>
+            <span class="probe-metric-val" id="probeWind">-- km/h</span>
+          </div>
+        </div>
+
+        <div class="probe-section-title">PELAGIC SPECIES BIOMASS ASSEMBLAGE</div>
+        <div class="probe-species-list" id="probeSpeciesList">
+          <div class="probe-species-item"><span>Computing hydrographic likelihood...</span></div>
+        </div>
+
+        <div class="probe-section-title">HISTORICAL MOLECULAR eDNA SOUNDINGS</div>
+        <div class="probe-edna-list" id="probeEdnaList">
+          <div class="probe-edna-item">No nearby eDNA stations found</div>
+        </div>
+
+        <!-- Interactive Multi-Edge Resize Handles (All 8 Directions: Top, Bottom, Left, Right & Corners) -->
+        <div class="probe-resizer resizer-t" data-dir="t" title="Drag top edge to resize height"></div>
+        <div class="probe-resizer resizer-b" data-dir="b" title="Drag bottom edge to resize height"></div>
+        <div class="probe-resizer resizer-r" data-dir="r" title="Drag right edge to resize width"></div>
+        <div class="probe-resizer resizer-l" data-dir="l" title="Drag left edge to resize width"></div>
+        <div class="probe-resizer resizer-tr" data-dir="tr" title="Drag corner to resize"></div>
+        <div class="probe-resizer resizer-tl" data-dir="tl" title="Drag corner to resize"></div>
+        <div class="probe-resizer resizer-bl" data-dir="bl" title="Drag corner to resize"></div>
+        <div class="probe-resizer resizer-br" data-dir="br" title="Drag corner to resize">
+          <span class="corner-grip-icon">◢</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Analytics & Control Sidebar -->
+    <aside class="control-sidebar">
+      
+      <!-- Unified KPIs -->
+      <div class="glass-card">
+        <div class="card-title-row">
+          <span class="card-title">Cross-Domain Ecosystem Indices</span>
+          <span class="badge-tag badge-emerald" id="healthBadge">EXCELLENT</span>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-box">
+            <div class="kpi-box-title">Sea Surface Temp</div>
+            <div class="kpi-box-num" id="kpiSST">28.4°C</div>
+            <div class="kpi-box-meta" id="kpiSSTMeta">Normal (+0.2°C Anom)</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-box-title">Fleet Catch Biomass</div>
+            <div class="kpi-box-num" id="kpiCatch">482 kg</div>
+            <div class="kpi-box-meta">CPUE 54.2 kg/hr</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-box-title">eDNA Biodiversity</div>
+            <div class="kpi-box-num" id="kpiEdna">H' 1.42</div>
+            <div class="kpi-box-meta">5 Endangered Taxa</div>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-box-title">Ecosystem Health</div>
+            <div class="kpi-box-num" id="kpiHealth">86.4</div>
+            <div class="kpi-box-meta">Integrated Index / 100</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live AIS Fleet Monitoring Table -->
+      <div class="glass-card ais-fleet-card">
+        <div class="card-title-row">
+          <div class="card-title-wrap">
+            <span class="pulse-beacon sm"></span>
+            <span class="card-title">Active AIS Fleet Transponders</span>
+          </div>
+          <span class="badge-tag badge-emerald" id="aisVesselsCount">8 LOGGED</span>
+        </div>
+        <div class="ais-table-wrap">
+          <table class="ais-table" id="aisFleetTable">
+            <thead>
+              <tr>
+                <th>Vessel / MMSI</th>
+                <th>Spd / Hdg</th>
+                <th>Target Catch</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="aisFleetTableBody">
+              <!-- Dynamically rendered from fisheries feed -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Cross-Domain Chart (SST vs Catch Biomass) -->
+      <div class="glass-card">
+        <div class="card-title-row">
+          <span class="card-title">Cross-Domain Coupling: SST vs Catch</span>
+          <span class="badge-tag badge-cyan">AI MODEL</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="crossDomainChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Depth Profile Chart (0m to 500m) -->
+      <div class="glass-card">
+        <div class="card-title-row">
+          <span class="card-title">Vertical CTD Profile (0 - 500m)</span>
+          <span class="badge-tag badge-cyan">Thermocline / OMZ</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="depthProfileChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Molecular eDNA Taxa Distribution -->
+      <div class="glass-card">
+        <div class="card-title-row">
+          <span class="card-title">eDNA Marker Taxonomic Distribution</span>
+          <span class="badge-tag badge-cyan">12S / COI</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="ednaTaxaChart"></canvas>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 1: THE SAFE BOX (DATA INGESTION DROP BOX)                           -->
+  <!-- ========================================================================= -->
+  <div class="modal-overlay" id="safeBoxModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>📦</span> The Safe Box: Data Ingestion & Storage
+        </div>
+        <button class="btn-close" id="btnCloseSafeBox">&times;</button>
+      </div>
+      
+      <p class="modal-desc">
+        Drop Excel sheets (<code>.xlsx</code>, <code>.xls</code>), CSVs, satellite telemetry, or FASTA files here. Triton AI will automatically harmonize dates, locations, and taxonomic names before saving cleanly into PostgreSQL.
+      </p>
+
+      <div class="sample-chips-row" style="margin-bottom: 1rem;">
+        <span class="sample-chips-lbl">Try Sample Raw Datasets (1-Click Test):</span>
+        <button class="chip-btn" id="chipSampleBuoy" type="button">📑 Buoy Survey (Messy DMS & Dates)</button>
+        <button class="chip-btn" id="chipSampleFisheries" type="button">🐟 Catch Log (Unstandardized Species)</button>
+        <button class="chip-btn" id="chipSampleEdna" type="button">🧬 eDNA Barcode FASTA</button>
+      </div>
+
+      <!-- Drag and drop zone -->
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-zone-icon">📥</div>
+        <div class="drop-zone-text">Drag & drop scientific data files here, or click to browse</div>
+        <div class="drop-zone-formats">Supported: .xlsx, .xls, .csv, .json, .fasta</div>
+        <input type="file" id="fileInput" class="drop-zone-input" accept=".csv,.xlsx,.xls,.json,.fasta,.fa,.txt">
+      </div>
+
+      <!-- Upload Results Panel -->
+      <div class="safebox-result-panel" id="safeboxResultPanel" style="display: none;">
+        <div class="safebox-stats-row">
+          <div class="stat-pill green"><span>✅ Saved to PostgreSQL:</span> <strong id="statSaved">0</strong></div>
+          <div class="stat-pill cyan"><span>📅 Dates Harmonized:</span> <strong id="statDates">0</strong></div>
+          <div class="stat-pill amber"><span>🗺️ GPS Coords Cleaned:</span> <strong id="statCoords">0</strong></div>
+          <div class="stat-pill coral"><span>🧬 Species Normalized:</span> <strong id="statSpecies">0</strong></div>
+        </div>
+        
+        <div class="preview-title">Cleaned Data Preview (First 5 Rows):</div>
+        <div class="preview-table-wrap">
+          <table class="preview-table" id="previewTable">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 2: THE DNA MATCHER (BIOLOGICAL SEQUENCE CLASSIFIER)                 -->
+  <!-- ========================================================================= -->
+  <div class="modal-overlay" id="dnaMatcherModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>🧬</span> The DNA Matcher: Biological Sequence Identification
+        </div>
+        <button class="btn-close" id="btnCloseDnaMatcher">&times;</button>
+      </div>
+
+      <p class="modal-desc">
+        Paste a string of raw DNA nucleotides (A, C, G, T) from water sample eDNA sequencing. The AI will instantly search 12S/COI barcode libraries, name the fish, and retrieve its taxonomy and conservation status.
+      </p>
+
+      <div class="sample-chips-row">
+        <span class="sample-chips-lbl">Try Sample Barcodes:</span>
+        <button class="chip-btn" id="chipTuna">🐟 Yellowfin Tuna</button>
+        <button class="chip-btn" id="chipBluefin">🐟 Atlantic Bluefin</button>
+        <button class="chip-btn" id="chipWhaleShark">🦈 Whale Shark</button>
+        <button class="chip-btn" id="chipGreatWhite">🦈 Great White Shark</button>
+        <button class="chip-btn" id="chipBlueWhale">🐋 Blue Whale</button>
+        <button class="chip-btn" id="chipSquid">🦑 Giant Squid</button>
+        <button class="chip-btn" id="chipTurtle">🐢 Green Sea Turtle</button>
+        <button class="chip-btn" id="chipMackerel">🐟 Indian Mackerel</button>
+      </div>
+
+      <div class="dna-input-wrap">
+        <textarea id="dnaSequenceInput" class="dna-textarea" rows="3" placeholder="Paste DNA nucleotide sequence here (e.g. ACCGCCCGTCACCCTCCTCAAGTAATCAACCGTACTTT...)..."></textarea>
+      </div>
+
+      <div class="dna-action-row">
+        <button class="btn-ocean btn-primary" id="btnMatchDna">
+          <span>⚡</span> Identify Marine Organism
+        </button>
+      </div>
+
+      <!-- DNA Match Results Panel -->
+      <div class="dna-result-panel" id="dnaResultPanel" style="display: none;">
+        <div class="dna-match-card">
+          <div class="dna-match-header">
+            <div>
+              <div class="dna-common-name" id="dnaCommonName">Yellowfin Tuna</div>
+              <div class="dna-sci-name" id="dnaSciName">Thunnus albacares</div>
+            </div>
+            <div class="dna-score-badge" id="dnaScoreBadge">99.8% Match</div>
+          </div>
+
+          <div class="dna-meta-row">
+            <span class="dna-status-pill" id="dnaIucnStatus">Near Threatened</span>
+            <span class="dna-tag" id="dnaAccession" style="background: rgba(0, 240, 255, 0.12); color: #38bdf8; border: 1px solid rgba(0, 240, 255, 0.25); font-family: var(--font-mono); font-weight: 600;">NCBI: NC_005317.1</span>
+            <span class="dna-tag" id="dnaGcContent" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); font-family: var(--font-mono);">GC: 48.0%</span>
+            <span class="dna-tag" id="dnaStrand" style="background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25);">Forward (5' &rarr; 3')</span>
+            <span class="dna-tag" id="dnaMarker">12S rRNA</span>
+            <span class="dna-tag" id="dnaRole">Apex Pelagic Predator</span>
+          </div>
+
+          <div class="dna-engine-row" id="dnaEngineRow" style="display: flex; align-items: center; justify-content: space-between; font-size: 0.76rem; padding: 4px 8px; background: rgba(0, 0, 0, 0.25); border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="color: var(--accent-cyan);">⚡ Engine:</span>
+              <span id="dnaEngine" style="color: #f1f5f9; font-weight: 600;">Smith-Waterman Dynamic Alignment</span>
+            </div>
+            <span id="dnaCoverageBadge" style="color: #38bdf8; font-family: var(--font-mono); font-size: 0.72rem;">Query Cov: 100%</span>
+          </div>
+
+          <div class="dna-taxonomy-tree" id="dnaTaxonomyTree">
+            Animalia &gt; Chordata &gt; Actinopterygii &gt; Scombridae &gt; Thunnus
+          </div>
+
+          <div class="dna-alignment-box">
+            <div class="alignment-lbl">Nucleotide Sequence Alignment & Homology:</div>
+            <pre class="alignment-pre" id="dnaAlignmentPre"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ========================================================================= -->
+  <!-- MODAL 3: LIVE UNIFIED ETL PIPELINE EXECUTION CONSOLE                      -->
+  <!-- ========================================================================= -->
+  <div class="modal-overlay" id="etlConsoleModal">
+    <div class="modal-card etl-console-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span class="etl-lightning-icon">⚡</span>
+          <span>Unified Multi-Domain ETL Pipeline</span>
+          <span class="etl-status-pill running" id="etlStatusPill">
+            <span class="etl-pulse-dot"></span>
+            <span id="etlStatusText">INGESTING LIVE FEEDS</span>
+          </span>
+        </div>
+        <button class="btn-close" id="btnCloseEtlConsole">&times;</button>
+      </div>
+
+      <p class="modal-desc">
+        Real-time pipeline orchestrating live data extraction, automated data cleaning, GPS geo-validation, and transactional commits across global oceanographic sensors, satellite radiometry, AIS commercial fleets, and molecular genomics.
+      </p>
+
+      <!-- Live Pipeline Telemetry Stats Bar -->
+      <div class="etl-telemetry-grid">
+        <div class="etl-stat-box">
+          <div class="etl-stat-label">⏱ Elapsed Time</div>
+          <div class="etl-stat-val cyan" id="etlTimer">0.0s</div>
+        </div>
+        <div class="etl-stat-box">
+          <div class="etl-stat-label">📊 Processed Records</div>
+          <div class="etl-stat-val green" id="etlRecordCount">0</div>
+        </div>
+        <div class="etl-stat-box">
+          <div class="etl-stat-label">🛡️ Data Integrity</div>
+          <div class="etl-stat-val amber" id="etlIntegrity">Validating...</div>
+        </div>
+        <div class="etl-stat-box">
+          <div class="etl-stat-label">🗄️ Target Database</div>
+          <div class="etl-stat-val purple">PostgreSQL (marine_db)</div>
+        </div>
+      </div>
+
+      <!-- Real-time Progress Bar -->
+      <div class="etl-progress-wrap">
+        <div class="etl-progress-header">
+          <span class="etl-progress-title" id="etlCurrentStageTitle">Initializing ETL Engine & DB Sessions...</span>
+          <span class="etl-progress-pct" id="etlProgressPercent">0%</span>
+        </div>
+        <div class="etl-progress-track">
+          <div class="etl-progress-bar" id="etlProgressBar" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <!-- 6-Stage Pipeline Stepper -->
+      <div class="etl-stages-list">
+        <div class="etl-stage-item" id="stage-open-meteo" data-stage="1">
+          <div class="stage-icon">🌊</div>
+          <div class="stage-info">
+            <div class="stage-name">Stage 1: Open-Meteo Physical Oceanography</div>
+            <div class="stage-sub">24 global stations: SST, wave dynamics, swell, currents</div>
+          </div>
+          <div class="stage-status-badge pending" id="stageBadge-1">Pending</div>
+        </div>
+
+        <div class="etl-stage-item" id="stage-noaa" data-stage="2">
+          <div class="stage-icon">🛰️</div>
+          <div class="stage-info">
+            <div class="stage-name">Stage 2: NOAA ERDDAP Satellite Radiometry</div>
+            <div class="stage-sub">CoastWatch satellite sea surface temperature & salinity rasters</div>
+          </div>
+          <div class="stage-status-badge pending" id="stageBadge-2">Pending</div>
+        </div>
+
+        <div class="etl-stage-item" id="stage-fisheries" data-stage="3">
+          <div class="stage-icon">🚢</div>
+          <div class="stage-info">
+            <div class="stage-name">Stage 3: Commercial AIS Fishing Fleets</div>
+            <div class="stage-sub">22 global fishing vessels, gear classifications & CPUE logs</div>
+          </div>
+          <div class="stage-status-badge pending" id="stageBadge-3">Pending</div>
+        </div>
+
+        <div class="etl-stage-item" id="stage-edna" data-stage="4">
+          <div class="stage-icon">🧬</div>
+          <div class="stage-info">
+            <div class="stage-name">Stage 4: eDNA Molecular Biodiversity</div>
+            <div class="stage-sub">14 genomics transects, 12S/COI barcode sequences & Shannon H' index</div>
+          </div>
+          <div class="stage-status-badge pending" id="stageBadge-4">Pending</div>
+        </div>
+
+        <div class="etl-stage-item" id="stage-validation" data-stage="5">
+          <div class="stage-icon">🧹</div>
+          <div class="stage-info">
+            <div class="stage-name">Stage 5: Quality Assurance & Taxa Harmonization</div>
+            <div class="stage-sub">Coordinate bounding checks, temperature anomaly filtering & OBIS sync</div>
+          </div>
+          <div class="stage-status-badge pending" id="stageBadge-5">Pending</div>
+        </div>
+
+        <div class="etl-stage-item" id="stage-commit" data-stage="6">
+          <div class="stage-icon">🗄️</div>
+          <div class="stage-info">
+            <div class="stage-name">Stage 6: PostgreSQL Transaction Commit</div>
+            <div class="stage-sub">Writing synchronized multi-domain records to marine_db tables</div>
+          </div>
+          <div class="stage-status-badge pending" id="stageBadge-6">Pending</div>
+        </div>
+      </div>
+
+      <!-- Real-Time Monospace Terminal Log Stream -->
+      <div class="etl-terminal-wrap">
+        <div class="etl-terminal-header">
+          <div class="terminal-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <span class="terminal-title">LIVE BACKEND EXECUTION LOG STREAM</span>
+          <span class="terminal-badge" id="terminalLiveBadge">STREAMING ●</span>
+        </div>
+        <pre class="etl-terminal-pre" id="etlTerminalLog">[00:00.0] [ETL-ORCHESTRATOR] Engine initialized. Awaiting pipeline start trigger...</pre>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="etl-actions-row">
+        <button class="btn-ocean" id="btnRefreshAfterEtl" style="display: none;">
+          <span>🔄</span> Refresh Dashboard & Map
+        </button>
+        <button class="btn-ocean btn-primary" id="btnDismissEtlConsole">
+          Dismiss Console
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide-Over GenAI Marine Copilot Drawer -->
+  <div class="chat-drawer" id="chatDrawer">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a10 10 0 0 1 10 10c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+        <span>Matsya AI</span>
+        <span class="badge" style="font-size: 0.68rem; padding: 3px 8px; margin-left: 8px; background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 12px; display: inline-flex; align-items: center; gap: 5px; font-weight: 600;"><span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block; box-shadow: 0 0 6px #10b981;"></span> Gemini Live LLM</span>
+      </div>
+      <button class="btn-close" id="btnCloseDrawer">&times;</button>
+    </div>
+
+    <!-- Messages Container -->
+    <div class="chat-messages" id="chatMessages">
+      <div class="msg-bubble ai">
+        <h3>👋 Welcome to Matsya AI</h3>
+        <p>I am your real-time marine intelligence copilot powered by <strong>Google Gemini</strong> with live multi-domain oceanographic telemetry, fisheries dynamic models, and environmental genomics (eDNA) intelligence. Ask me <strong>ANY</strong> question about ocean conditions, thermal anomalies, fishing hotspots, or molecular biodiversity!</p>
+      </div>
+    </div>
+
+    <!-- Quick Prompt Suggestions -->
+    <div class="quick-prompts">
+      <button class="prompt-chip" data-prompt="Where are the high-confidence tuna hotspots right now?">🎣 Tuna PFZ Hotspots</button>
+      <button class="prompt-chip" data-prompt="Is there a marine heatwave in the Arabian Sea?">🌊 Heatwave Diagnosis</button>
+      <button class="prompt-chip" data-prompt="List IUCN endangered species detected in eDNA">🧬 eDNA Endangered Species</button>
+      <button class="prompt-chip" data-prompt="Explain how ocean eddies and thermal fronts impact tuna migration">🌀 Eddies & Migration</button>
+      <button class="prompt-chip" data-prompt="Generate cross-domain marine ecosystem brief">📊 Executive State Brief</button>
+    </div>
+
+    <!-- Chat Input Form -->
+    <form class="chat-input-row" id="chatForm">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Ask Matsya AI about ocean conditions, tuna PFZs, or genomics..." autocomplete="off">
+      <button type="submit" class="btn-ocean btn-primary" id="btnSendChat">Send</button>
+    </form>
+  </div>
+
+  <!-- Custom JS Application Logic -->
+  <script src="/static/js/app.js?v=4.0"></script>
+</body>
+</html>
